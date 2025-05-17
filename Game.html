@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Quiz Game Application</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap');
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #f4f9ff;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: #222;
+    }
+
+    header {
+      background: #0066ff;
+      width: 100%;
+      padding: 1.2rem 0;
+      color: white;
+      font-weight: 700;
+      font-size: 1.8rem;
+      text-align: center;
+      box-shadow: 0 4px 8px rgb(0 102 255 / 0.4);
+      user-select: none;
+    }
+
+    main {
+      flex-grow: 1;
+      max-width: 700px;
+      width: 100%;
+      padding: 1rem 1.5rem 2rem;
+    }
+
+    .container {
+      background: white;
+      border-radius: 16px;
+      padding: 2rem 2.5rem;
+      box-shadow: 0 8px 24px rgb(0 102 255 / 0.12);
+      min-height: 400px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .category-list {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 1.5rem 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: center;
+    }
+
+    .category-item {
+      background: #0066ff;
+      color: #fff;
+      padding: 0.8rem 1.4rem;
+      border-radius: 30px;
+      cursor: pointer;
+      font-weight: 600;
+      user-select: none;
+      transition: background-color 0.3s ease;
+    }
+
+    .category-item:hover {
+      background-color: #004bb3;
+    }
+
+    button.btn {
+      cursor: pointer;
+      font-weight: 600;
+      padding: 0.9rem 1.8rem;
+      border: none;
+      border-radius: 30px;
+      background-color: #0066ff;
+      color: white;
+      box-shadow: 0 6px 15px rgb(0 102 255 / 0.5);
+      font-size: 1rem;
+      transition: background-color 0.3s ease;
+      margin-top: 1.5rem;
+      user-select: none;
+    }
+
+    button.btn:hover {
+      background-color: #004bb3;
+    }
+
+    .question {
+      font-size: 1.3rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+
+    .answers {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .answer-btn {
+      background: #e9f0ff;
+      border: 2.5px solid transparent;
+      border-radius: 12px;
+      padding: 1rem;
+      font-size: 1rem;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.25s ease;
+      user-select: none;
+    }
+
+    .answer-btn:hover {
+      background: #c3d7ff;
+    }
+
+    .answer-btn.selected {
+      border-color: #0066ff;
+      background-color: #d0e2ff;
+      font-weight: 700;
+    }
+
+    .answer-btn.correct {
+      border-color: #29a329;
+      background-color: #d9f2d9;
+      color: #2e7d32;
+      font-weight: 700;
+    }
+
+    .answer-btn.wrong {
+      border-color: #e63946;
+      background-color: #ffdada;
+      color: #9b2c2c;
+      font-weight: 700;
+    }
+
+    .timer {
+      font-weight: 700;
+      font-size: 1.2rem;
+      margin-bottom: 1rem;
+      color: #0066ff;
+      user-select: none;
+    }
+
+    .scoreboard {
+      margin-top: 1rem;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #333;
+      user-select: none;
+      text-align: center;
+    }
+
+    .feedback {
+      margin-top: 1rem;
+      font-size: 1rem;
+      font-style: italic;
+      color: #555;
+      min-height: 1.6rem;
+      text-align: center;
+    }
+
+    .review-grid {
+      max-height: 60vh;
+      overflow-y: auto;
+      margin-top: 1rem;
+    }
+
+    .review-item {
+      padding: 1rem;
+      border-bottom: 1px solid #ddd;
+      background: #f9fafb;
+      border-radius: 12px;
+      margin-bottom: 1rem;
+    }
+
+    .review-question {
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .review-answer {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+    }
+
+    .answer-review {
+      padding: 0.4rem 1rem;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      user-select: none;
+    }
+
+    .answer-correct {
+      background-color: #d9f2d9;
+      color: #2e7d32;
+    }
+
+    .answer-selected {
+      background-color: #d0e2ff;
+      color: #004080;
+    }
+
+    .answer-wrong {
+      background-color: #ffdada;
+      color: #a12d2d;
+    }
+
+    @media (max-width: 450px) {
+      .container {
+        padding: 1.5rem 1.8rem;
+        min-height: 380px;
+      }
+
+      .question {
+        font-size: 1.15rem;
+      }
+
+      button.btn {
+        font-size: 0.9rem;
+        padding: 0.8rem 1.4rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header>Quiz Game Application</header>
+  <main>
+    <div class="container" id="category-screen">
+      <h2 style="text-align:center; margin-bottom: 1.5rem;">Choose a Category</h2>
+      <ul class="category-list" id="category-list">
+        <!-- Categories populated here -->
+      </ul>
+      <div style="text-align:center; font-size: 0.95rem; color: #555;">Select a category to start the quiz</div>
+    </div>
+
+    <div class="container hidden" id="quiz-screen">
+      <div class="timer" id="timer">Time Left: <span id="time-left">15</span>s</div>
+      <div class="question" id="question-text"></div>
+      <ul class="answers" id="answer-list"></ul>
+      <div class="feedback" id="feedback"></div>
+      <div class="scoreboard" id="scoreboard">Score: 0</div>
+      <button class="btn" id="next-btn" disabled>Next Question</button>
+    </div>
+
+    <div class="container hidden" id="result-screen" style="text-align:center;">
+      <h2>Your Score</h2>
+      <p id="final-score-text" style="font-size: 1.5rem; margin: 1rem 0;"></p>
+      <button class="btn" id="review-btn">Review Answers</button>
+      <button class="btn" id="restart-btn" style="margin-left:1rem;">Restart Quiz</button>
+    </div>
+
+    <div class="container hidden" id="review-screen">
+      <h2>Review Your Answers</h2>
+      <div class="review-grid" id="review-list"></div>
+      <button class="btn" id="back-to-category-btn" style="margin-top: 1rem;">Back to Category Selection</button>
+    </div>
+  </main>
+
+  <script>
+    // Data: Example questions for categories
+    const quizData = {
+      "General Knowledge": [
+        {
+          question: "What is the capital city of France?",
+          options: ["Paris", "Berlin", "Rome", "Madrid"],
+          answer: 0
+        },
+        {
+          question: "Who wrote the famous novel '1984'?",
+          options: ["George Orwell", "Aldous Huxley", "Ernest Hemingway", "Mark Twain"],
+          answer: 0
+        },
+        {
+          question: "What planet is known as the Red Planet?",
+          options: ["Mars", "Jupiter", "Venus", "Saturn"],
+          answer: 0
+        }
+      ],
+      "Science": [
+        {
+          question: "What is the chemical symbol for water?",
+          options: ["H2O", "O2", "CO2", "NaCl"],
+          answer: 0
+        },
+        {
+          question: "Which gas do plants absorb from the atmosphere?",
+          options: ["Carbon Dioxide", "Oxygen", "Nitrogen", "Hydrogen"],
+          answer: 0
+        },
+        {
+          question: "How many bones are there in the human body?",
+          options: ["206", "210", "195", "220"],
+          answer: 0
+        }
+      ],
+      "Technology": [
+        {
+          question: "What does 'HTTP' stand for?",
+          options: ["HyperText Transfer Protocol", "HyperText Transmission Protocol", "HighText Transfer Protocol", "Hyperlink Transfer Protocol"],
+          answer: 0
+        },
+        {
+          question: "Which company developed the Java programming language?",
+          options: ["Sun Microsystems", "Microsoft", "Apple", "IBM"],
+          answer: 0
+        },
+        {
+          question: "What is the main function of a CPU in a computer?",
+          options: ["Process data", "Store data", "Display images", "Input data"],
+          answer: 0
+        }
+      ]
+    };
+
+    const categoryListEl = document.getElementById('category-list');
+    const categoryScreen = document.getElementById('category-screen');
+    const quizScreen = document.getElementById('quiz-screen');
+    const resultScreen = document.getElementById('result-screen');
+    const reviewScreen = document.getElementById('review-screen');
+
+    const questionTextEl = document.getElementById('question-text');
+    const answerListEl = document.getElementById('answer-list');
+    const timerEl = document.getElementById('time-left');
+    const feedbackEl = document.getElementById('feedback');
+    const scoreboardEl = document.getElementById('scoreboard');
+    const nextBtn = document.getElementById('next-btn');
+    const finalScoreText = document.getElementById('final-score-text');
+    const reviewList = document.getElementById('review-list');
+
+    const reviewBtn = document.getElementById('review-btn');
+    const restartBtn = document.getElementById('restart-btn');
+    const backToCategoryBtn = document.getElementById('back-to-category-btn');
+
+    let currentCategory = null;
+    let questions = [];
+    let currentIndex = 0;
+    let score = 0;
+    let timer = null;
+    let timePerQuestion = 15;
+    let timeLeft = timePerQuestion;
+    let userSelections = [];
+
+    // Populate categories on load
+    function loadCategories() {
+      categoryListEl.innerHTML = '';
+      Object.keys(quizData).forEach(cat => {
+        const li = document.createElement('li');
+        li.textContent = cat;
+        li.className = 'category-item';
+        li.tabIndex = 0;
+        li.addEventListener('click', () => selectCategory(cat));
+        li.addEventListener('keypress', e => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            selectCategory(cat);
+          }
+        });
+        categoryListEl.appendChild(li);
+      });
+    }
+
+    // Select category and start quiz
+    function selectCategory(category) {
+      currentCategory = category;
+      questions = [...quizData[category]];
+      currentIndex = 0;
+      score = 0;
+      userSelections = [];
+      categoryScreen.classList.add('hidden');
+      resultScreen.classList.add('hidden');
+      reviewScreen.classList.add('hidden');
+      quizScreen.classList.remove('hidden');
+      nextBtn.disabled = true;
+      feedbackEl.textContent = '';
+      scoreboardEl.textContent = `Score: 0`;
+      showQuestion();
+      startTimer();
+    }
+
+    // Show question and options
+    function showQuestion() {
+      feedbackEl.textContent = '';
+      const currentQ = questions[currentIndex];
+      questionTextEl.textContent = `Q${currentIndex + 1}. ${currentQ.question}`;
+      answerListEl.innerHTML = '';
+      currentQ.options.forEach((opt, idx) => {
+        const li = document.createElement('li');
+        const btn = document.createElement('button');
+        btn.className = 'answer-btn';
+        btn.textContent = opt;
+        btn.addEventListener('click', () => selectAnswer(idx));
+        btn.setAttribute('type', 'button');
+        btn.setAttribute('aria-pressed', 'false');
+        li.appendChild(btn);
+        answerListEl.appendChild(li);
+      });
+      nextBtn.disabled = true;
+      timeLeft = timePerQuestion;
+      timerEl.textContent = timeLeft;
+    }
+
+    // Select answer
+    function selectAnswer(selectedIndex) {
+      clearInterval(timer);
+      const currentQ = questions[currentIndex];
+      const buttons = answerListEl.querySelectorAll('button');
+      userSelections[currentIndex] = selectedIndex;
+
+      buttons.forEach((btn, idx) => {
+        btn.disabled = true;
+        btn.classList.remove('selected', 'correct', 'wrong');
+        if (idx === selectedIndex) {
+          btn.classList.add('selected');
+          btn.setAttribute('aria-pressed', 'true');
+        } else {
+          btn.setAttribute('aria-pressed', 'false');
+        }
+        if (idx === currentQ.answer) {
+          btn.classList.add('correct');
+        }
+      });
+
+      if (selectedIndex === currentQ.answer) {
+        score++;
+        feedbackEl.textContent = 'Correct! 🎉';
+        feedbackEl.style.color = '#2e7d32';
+      } else {
+        buttons[selectedIndex].classList.add('wrong');
+        feedbackEl.textContent = `Wrong! The correct answer was "${currentQ.options[currentQ.answer]}".`;
+        feedbackEl.style.color = '#a12d2d';
+      }
+
+      scoreboardEl.textContent = `Score: ${score}`;
+      nextBtn.disabled = false;
+      nextBtn.focus();
+    }
+
+    // Timer functionality
+    function startTimer() {
+      timer = setInterval(() => {
+        timeLeft--;
+        timerEl.textContent = timeLeft;
+        if (timeLeft <= 0) {
+          clearInterval(timer);
+          feedbackEl.textContent = 'Time’s up!';
+          feedbackEl.style.color = '#a12d2d';
+          disableAnswers();
+          userSelections[currentIndex] = null;
+          nextBtn.disabled = false;
+          nextBtn.focus();
+        }
+      }, 1000);
+    }
+
+    // Disable all answer buttons
+    function disableAnswers() {
+      const buttons = answerListEl.querySelectorAll('button');
+      buttons.forEach(btn => btn.disabled = true);
+    }
+
+    // Go to next question or finish quiz
+    nextBtn.addEventListener('click', () => {
+      currentIndex++;
+      if (currentIndex >= questions.length) {
+        finishQuiz();
+      } else {
+        showQuestion();
+        startTimer();
+      }
+      nextBtn.disabled = true;
+    });
+
+    // Finish quiz and show results
+    function finishQuiz() {
+      quizScreen.classList.add('hidden');
+      resultScreen.classList.remove('hidden');
+      finalScoreText.textContent = `You scored ${score} out of ${questions.length}!`;
+    }
+
+    // Review answers
+    reviewBtn.addEventListener('click', () => {
+      resultScreen.classList.add('hidden');
+      reviewScreen.classList.remove('hidden');
+      populateReview();
+    });
+
+    // Restart quiz - on result screen
+    restartBtn.addEventListener('click', () => {
+      resultScreen.classList.add('hidden');
+      selectCategory(currentCategory);
+    });
+
+    // Back to category selection from review screen
+    backToCategoryBtn.addEventListener('click', () => {
+      reviewScreen.classList.add('hidden');
+      categoryScreen.classList.remove('hidden');
+      currentCategory = null;
+    });
+
+    // Populate review screen with questions and answers
+    function populateReview() {
+      reviewList.innerHTML = '';
+      questions.forEach((q, idx) => {
+        const item = document.createElement('div');
+        item.className = 'review-item';
+
+        const questionEl = document.createElement('div');
+        questionEl.className = 'review-question';
+        questionEl.textContent = `Q${idx + 1}. ${q.question}`;
+
+        const answersEl = document.createElement('div');
+        answersEl.className = 'review-answer';
+
+        q.options.forEach((opt, optionIdx) => {
+          const optSpan = document.createElement('span');
+          optSpan.textContent = opt;
+          optSpan.className = 'answer-review';
+          if (optionIdx === q.answer) {
+            optSpan.classList.add('answer-correct');
+          }
+          if (userSelections[idx] === optionIdx) {
+            optSpan.classList.add(userSelections[idx] === q.answer ? 'answer-selected' : 'answer-wrong');
+          }
+          answersEl.appendChild(optSpan);
+        });
+
+        item.appendChild(questionEl);
+        item.appendChild(answersEl);
+        reviewList.appendChild(item);
+      });
+    }
+
+    // Initialize app
+    loadCategories();
+  </script>
+</body>
+
+</html>
